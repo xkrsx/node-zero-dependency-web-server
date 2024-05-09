@@ -52,14 +52,17 @@ await createHTTPServer(port, async ({ url, headers, method }, res) => {
       : mimeTypes[path.extname(filePath).substring(1).toLowerCase()] || mimeTypes.default;
 
   res.writeHead(statusCode, { "Content-Type": contentType });
-  
 
   fs.createReadStream(statusCode === 200 ? filePath : notFound)
     .pipe(res);
 
-  console.log(`Method: ${method}
+  console.log(`
+  Method: ${method}
   URL: ${url}
-  Code: ${statusCode}`);
+  Code: ${statusCode}
+  Content-Type: ${contentType}
+  `);
+  
 });
 
 console.log(`Server running at http://localhost:${port}/`);
