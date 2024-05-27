@@ -18,11 +18,6 @@ const mimeTypes = {
   svg: 'image/svg+xml',
 };
 
-const notFound = async (req, res) => {
-  await res.writeHead(404, { 'Content-Type': 'text/html' });
-  await res.end('<h1>404!</h1');
-};
-
 async function fileExists(pathString) {
   return await fs.promises.access(pathString).then(
     () => true,
@@ -52,7 +47,11 @@ await createHTTPServer(port, async ({ url, headers, method }, res) => {
 
   res.writeHead(statusCode, { 'Content-Type': contentType });
 
-  fs.createReadStream(statusCode === 200 ? filePath : notFound).pipe(res);
+  if (statusCode === 200) {
+    fs.createReadStream(filePath).pipe(res);
+  } else {
+    res.end('<h1>404 Not Found</h1>');
+  }
 
   console.log(
     'Method: ' + method,
@@ -61,13 +60,5 @@ await createHTTPServer(port, async ({ url, headers, method }, res) => {
     'Content-Type: ' + contentType,
   );
 });
-
-// const middleware = async (req, res) => {
-//   const filePath = (
-//     url.endsWith('/') ? [publicPath, url, 'index.html'] : [publicPath, url]
-//   ).join('');
-//   const statusCode = (await fileExists(filePath)) ? 200 : 404;
-//   console.log(`${req.method} ${req.url} ${statusCode}`);
-// };
 
 console.log(`Server running at http://localhost:${port}/`);
